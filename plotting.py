@@ -18,7 +18,7 @@ def get_distributions(model, dataloader, bins=100, flip_axes=(-1,), smoothing=3)
         norms = []
         flips = []
         diffs = []
-        for data in dataloader:
+        for (data,) in dataloader:
             data = data.to(device)
             data_flip = data.flip(dims=flip_axes)
             output = model(data)
