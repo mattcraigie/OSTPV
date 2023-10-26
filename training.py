@@ -1,6 +1,6 @@
-from data import DataHandler
+from dlutils.data import DataHandler
 from dlutils.training import RegressionTrainer
-from dlutils.plotting import show_parity_plots
+from plotting import show_parity_plots
 import torch
 import torch.nn as nn
 
