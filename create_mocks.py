@@ -60,7 +60,7 @@ def make_2d_mocks(num_mocks, size, a, b, num_triangles, save_path=None):
 
 def add_tetra_to_grid(size, a, b, c, num_tetras):
     # a, b and c are the sizes of the tetra legs
-    grid = torch.zeros((size, size, size), dtype=torch.int)
+    grid = np.zeros((size, size, size), dtype=torch.int)
     for i in range(num_tetras):
         # Choose a random position for the first point
         x1, y1, z1 = np.random.randint(0, size), np.random.randint(0, size), np.random.randint(0, size)
