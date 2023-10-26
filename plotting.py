@@ -38,8 +38,8 @@ def get_distributions(model, dataloader, bins=100, flip_axes=(-1,), smoothing=3)
         _, y_flips = filtered_hist(flips, low, high, bins, smoothing)
 
         # difference plotting
-        diffs_mean = diffs.mean(0)
         diffs /= diffs.std()
+        diffs_mean = diffs.mean(0)
         bin_mids_diffs, y_diffs = filtered_hist(diffs, diffs.min(), diffs.max(), bins, smoothing)
 
         return (bin_mids_pairs, y_norms, y_flips), (bin_mids_diffs, y_diffs, diffs_mean)
