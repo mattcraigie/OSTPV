@@ -13,23 +13,20 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 class OSTPV3D(nn.Module):
-    def __init__(self, size, num_scales, init_morlet=True):
+    def __init__(self, size, num_scales):
         super(OSTPV3D, self).__init__()
+
+        self.size = size
+        self.num_scales = num_scales
 
         self.subnet = SubNet3d(num_ins=4, hidden_sizes=(32, 32), num_outs=1, activation=nn.LeakyReLU)
         self.filters = FourierSubNetFilters3d(size, num_scales, subnet=self.subnet, symmetric=False)
         self.st = ScatteringTransform3d(self.filters)
 
-        if init_morlet:
-            morlet = Morlet3d(size, num_scales)
-            self.filters.initialise_weights(morlet.filter_tensor[:, 0], num_epochs=3000)
-
         self.reducer = Reducer(self.filters, 'none', filters_3d=True)
         self.num_outputs = self.reducer.num_outputs
         self.regressor = nn.Sequential(
-            nn.Linear(self.num_outputs, 32),
-            nn.ReLU(),
-            nn.Linear(32, 1)
+            nn.Linear(self.num_outputs, 1)
         )
 
     def forward(self, x):
@@ -37,7 +34,7 @@ class OSTPV3D(nn.Module):
         x = self.st(x)
         x = self.reducer(x)
         x = self.regressor(x).squeeze(1)
-        return x
+        return torch.tanh(x)
 
     def to(self, device):
         super(OSTPV3D, self).to(device)
@@ -46,6 +43,14 @@ class OSTPV3D(nn.Module):
         self.reducer.to(device)
         self.device = device
         return self
+
+    def init_morlet(self):
+        morlet = Morlet3d(self.size, self.num_scales)
+        try:
+            morlet.to(self.device)
+        except AttributeError:
+            pass
+        self.filters.initialise_weights(morlet.filter_tensor[:, 0], num_epochs=3000)
 
 
 def parity_criterion(axes=(-1,)):
@@ -59,7 +64,7 @@ def parity_criterion(axes=(-1,)):
         mu = (gx - gpx).mean()
         sigma = (gx - gpx).std()
 
-        return mu / sigma
+        return - mu / sigma
 
     return model_loss
 
