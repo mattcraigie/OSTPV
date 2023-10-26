@@ -33,8 +33,7 @@ class OSTPV3D(nn.Module):
         )
 
     def forward(self, x):
-        if self.trainable_filters:
-            self.filters.update_filters()
+        self.filters.update_filters()
         x = self.st(x)
         x = self.reducer(x)
         x = self.regressor(x).squeeze(1)
@@ -65,17 +64,17 @@ def parity_criterion(axes=(-1,)):
     return model_loss
 
 
-def analysis():
+def example_analysis(data_path):
 
     # load the data
-    data = torch.load('data/mocks_3d.pt')
+    data = torch.load(data_path)
 
     # create the data handler
     data_handler = DataHandler(data)
-    train_loader, val_loader = data_handler.make_dataloaders(batch_size=128, val_fraction=0.2)
+    train_loader, val_loader = data_handler.make_dataloaders(batch_size=64, val_fraction=0.2)
 
     # create the model
-    model = OSTPV3D(size=128, num_scales=4, init_morlet=True)
+    model = OSTPV3D(size=16, num_scales=3, init_morlet=False)
 
     # create the trainer
     trainer = RegressionTrainer(model, train_loader, val_loader, criterion=parity_criterion(), no_targets=True, device='cuda')
