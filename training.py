@@ -64,6 +64,20 @@ def parity_criterion(axes=(-1,)):
     return model_loss
 
 
+def parity_criterion2(axes=(-1,)):
+    def batch_tension_loss(model, data):
+
+        x1 = model(data)
+        x2 = model(data.flip(axes))
+
+        mean_diff = (x1.mean() - x2.mean()).abs()
+        x_sigma_combined = torch.sqrt(x1.std() ** 2 + x2.std() ** 2)
+        return -mean_diff / (x_sigma_combined)
+
+    return batch_tension_loss
+
+
+
 def example_analysis(data_path):
 
     # load the data
