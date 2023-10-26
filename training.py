@@ -29,7 +29,7 @@ class OSTPV3D(nn.Module):
         self.regressor = nn.Sequential(
             nn.Linear(self.num_outputs, 32),
             nn.ReLU(),
-            nn.Linear(32, 2)
+            nn.Linear(32, 1)
         )
 
     def forward(self, x):
