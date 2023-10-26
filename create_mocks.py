@@ -60,17 +60,10 @@ def make_2d_mocks(num_mocks, size, a, b, num_triangles, save_path=None):
 
 def add_tetra_to_grid(size, a, b, c, num_tetras):
     # a, b and c are the sizes of the tetra legs
-
     grid = torch.zeros((size, size, size), dtype=torch.int)
-
-
-    # Create a copy of the original grid to add the points to
-    new_grid = np.copy(grid)
-
     for i in range(num_tetras):
-
         # Choose a random position for the first point
-        x1, y1, z1 = np.random.randint(0, m), np.random.randint(0, n), np.random.randint(0, l)
+        x1, y1, z1 = np.random.randint(0, size), np.random.randint(0, size), np.random.randint(0, size)
         point_1 = np.array([x1, y1, z1])
 
         # Choose a random direction for the second point (represented by a unit vector)
@@ -79,7 +72,7 @@ def add_tetra_to_grid(size, a, b, c, num_tetras):
 
         # find two orthonormal vectors
         direction_3 = np.array([-direction_2[1], direction_2[0], direction_2[2]])
-        direction_4 = np.array([direction_2[0], -direction_2[2], direction_2[1]])
+        direction_4 = np.cross(direction_2, direction_3)
 
         # Calculate the position of the points
         point_2 = point_1 + (a * direction_2).astype(int)
@@ -88,10 +81,10 @@ def add_tetra_to_grid(size, a, b, c, num_tetras):
 
         # Add the points to the grid, wrapping if they go over
         for p in [point_1, point_2, point_3, point_4]:
-            x_add, y_add, z_add = p[0] % m, p[1] % n, p[2] % l
-            new_grid[x_add, y_add, z_add] += 1
+            p = p % size
+            grid[p[0], p[1], p[2]] += 1
 
-    return new_grid
+    return grid
 
 
 def make_3d_mocks(num_mocks, size, a, b, c, num_tetras, save_path=None):
@@ -101,8 +94,7 @@ def make_3d_mocks(num_mocks, size, a, b, c, num_tetras, save_path=None):
     for i in range(num_mocks):
         if i % 100 == 0:
             print(i)
-        grid = np.zeros((size, size, size), dtype=int)
-        resulting_grid = add_tetra_to_grid(grid, a, b, c, num_tetras)
+        resulting_grid = add_tetra_to_grid(size, a, b, c, num_tetras)
         all_mocks[i] = torch.from_numpy(resulting_grid)
 
     if save_path is None:
