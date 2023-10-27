@@ -61,8 +61,10 @@ def parity_criterion(axes=(-1,)):
         gx = model(data)
         gpx = model(flipped)
 
-        mu = (gx - gpx).mean()
-        sigma = (gx - gpx).std()
+        diffs = (gx - gpx).abs()
+
+        mu = diffs.mean()
+        sigma = diffs.std()
 
         return - mu / sigma
 
@@ -77,10 +79,9 @@ def parity_criterion2(axes=(-1,)):
 
         mean_diff = (x1.mean() - x2.mean()).abs()
         x_sigma_combined = torch.sqrt(x1.std() ** 2 + x2.std() ** 2)
-        return -mean_diff / (x_sigma_combined)
+        return -mean_diff / x_sigma_combined
 
     return batch_tension_loss
-
 
 
 def example_analysis(data_path):
@@ -93,7 +94,7 @@ def example_analysis(data_path):
     train_loader, val_loader = data_handler.make_dataloaders(batch_size=64, val_fraction=0.2)
 
     # create the model
-    model = OSTPV3D(size=16, num_scales=3, init_morlet=False)
+    model = OSTPV3D(size=16, num_scales=3)
 
     # create the trainer
     trainer = RegressionTrainer(model, train_loader, val_loader, criterion=parity_criterion(), no_targets=True, device='cuda')
@@ -103,8 +104,9 @@ def example_analysis(data_path):
     trainer.loss_plot(save_path='loss_plot.png')
 
     # show the results
-    trainer.load_best()
+    best_model, best_loss = trainer.get_best_model()
+    print("Best loss is {:.3e}".format(best_loss))
 
     # show the parity plots
-    show_parity_plots(model, train_loader, val_loader)
+    show_parity_plots(best_model, train_loader, val_loader)
 

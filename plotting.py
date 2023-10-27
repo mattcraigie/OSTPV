@@ -38,11 +38,11 @@ def get_distributions(model, dataloader, bins=100, flip_axes=(-1,), smoothing=3)
         _, y_flips = filtered_hist(flips, low, high, bins, smoothing)
 
         # difference plotting
-        diffs /= diffs.std()
         diffs_mean = diffs.mean(0)
+        diffs_sigma = diffs.std(0)
         bin_mids_diffs, y_diffs = filtered_hist(diffs, diffs.min(), diffs.max(), bins, smoothing)
 
-        return (bin_mids_pairs, y_norms, y_flips), (bin_mids_diffs, y_diffs, diffs_mean)
+        return (bin_mids_pairs, y_norms, y_flips), (bin_mids_diffs, y_diffs, diffs_mean, diffs_sigma)
 
 
 def pairs_plot(train_left, train_right, train_mids, val_left, val_right, val_mids, save_path=None):
@@ -72,8 +72,11 @@ def pairs_plot(train_left, train_right, train_mids, val_left, val_right, val_mid
         plt.close()
 
 
-def diffs_plot(train_diffs, train_mids, val_diffs, val_mids, train_mean, val_mean, save_path=None):
-    ig, axes = plt.subplots(ncols=2, figsize=(16, 6))
+def diffs_plot(train_diffs, train_mids, val_diffs, val_mids, train_mean, train_sigma, val_mean, val_sigma, save_path=None):
+
+    print("train: {:.3e}, {:.3e} | val: {:.3e}, {:.3e}".format(train_mean, train_sigma, val_mean, val_sigma))
+
+    fig, axes = plt.subplots(ncols=2, figsize=(16, 6))
     axes[0].plot(train_mids, train_diffs, c='red', label='Left Fields', linewidth=4)
     axes[0].set_title('Train', fontsize=16)
     axes[0].set_xlabel('PV Statistic Value', fontsize=16)
@@ -111,8 +114,8 @@ def show_parity_plots(model, train_dataloader, val_dataloader, axes=(-1,)):
     pairs_plot(train_left, train_right, train_mids, val_left, val_right, val_mids)
 
     # Difference plot
-    train_mids, train_diffs, train_mean = train_diffs
-    val_mids, val_diffs, val_mean = val_diffs
+    train_mids, train_diffs, train_mean, train_sigma = train_diffs
+    val_mids, val_diffs, val_mean, val_sigma = val_diffs
 
-    diffs_plot(train_diffs, train_mids, val_diffs, val_mids, train_mean, val_mean)
+    diffs_plot(train_diffs, train_mids, val_diffs, val_mids, train_mean, train_sigma, val_mean, val_sigma)
 
