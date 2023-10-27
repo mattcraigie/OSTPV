@@ -110,3 +110,6 @@ def example_analysis(data_path):
     # show the parity plots
     show_parity_plots(best_model, train_loader, val_loader)
 
+
+
+

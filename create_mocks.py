@@ -58,6 +58,26 @@ def make_2d_mocks(num_mocks, size, a, b, num_triangles, save_path=None):
     torch.save(all_mocks, save_path)
 
 
+def random_unit_vector():
+    vec = np.random.randn(3)
+    vec /= np.linalg.norm(vec)
+    return vec
+
+
+def get_random_orthog_vecs():
+
+    # Align i with the random unit vector
+    i = random_unit_vector()
+
+    # Calculate j and k based on i
+    j = np.cross(i, random_unit_vector())  # pick a random direction and cross off that to get the first perp vec
+    j /= np.linalg.norm(j)
+
+    k = np.cross(i, j)
+
+    return i, j, k
+
+
 def add_tetra_to_grid(size, a, b, c, num_tetras):
     # a, b and c are the sizes of the tetra legs
     grid = np.zeros((size, size, size), dtype=int)
@@ -66,13 +86,7 @@ def add_tetra_to_grid(size, a, b, c, num_tetras):
         x1, y1, z1 = np.random.randint(0, size), np.random.randint(0, size), np.random.randint(0, size)
         point_1 = np.array([x1, y1, z1])
 
-        # Choose a random direction for the second point (represented by a unit vector)
-        direction_2 = np.random.randn(3)
-        direction_2 /= np.linalg.norm(direction_2)
-
-        # find two orthonormal vectors
-        direction_3 = np.array([-direction_2[1], direction_2[0], direction_2[2]])
-        direction_4 = np.cross(direction_2, direction_3)
+        direction_2, direction_3, direction_4 = get_random_orthog_vecs()
 
         # Calculate the position of the points
         point_2 = point_1 + (a * direction_2).astype(int)
