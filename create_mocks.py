@@ -102,16 +102,16 @@ def add_tetra_to_grid(size, a, b, c, num_tetras):
 
 
 def make_3d_mocks(num_mocks, size, a, b, c, num_tetras, save_path=None):
-    all_mocks = torch.zeros(num_mocks, size, size, size)
+    all_mocks = np.zeros((num_mocks, size, size, size))
 
     print("Making {} mocks".format(num_mocks))
     for i in range(num_mocks):
         if i % 100 == 0:
             print(i)
         resulting_grid = add_tetra_to_grid(size, a, b, c, num_tetras)
-        all_mocks[i] = torch.from_numpy(resulting_grid)
+        all_mocks[i] = resulting_grid
 
     if save_path is None:
-        save_path = 'mocks_3d.pt'
+        save_path = 'mocks_3d.npy'
 
-    torch.save(all_mocks, save_path)
+    np.save(save_path, all_mocks)

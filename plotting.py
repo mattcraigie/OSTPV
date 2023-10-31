@@ -46,6 +46,8 @@ def get_distributions(model, dataloader, bins=100, flip_axes=(-1,), smoothing=3)
 
 
 def pairs_plot(train_left, train_right, train_mids, val_left, val_right, val_mids, save_path=None):
+    plot_min, plot_max = min(val_mids.min(), train_mids.min()), max(val_mids.max(), train_mids.max())
+
     fig, axes = plt.subplots(ncols=2, figsize=(16, 6))
     axes[0].plot(train_mids, train_left, c='red', label='$g(x)$', linewidth=4)
     axes[0].plot(train_mids, train_right, c='blue', label='$g(Px)$', linewidth=4)
@@ -55,7 +57,7 @@ def pairs_plot(train_left, train_right, train_mids, val_left, val_right, val_mid
     # axes[0].set_yticks([])
     # axes[0].set_xticks([])
     axes[0].legend(fontsize=16, loc='upper right')
-    axes[0].set_xlim(train_mids.min(), train_mids.max())
+    axes[0].set_xlim(plot_min, plot_max)
 
     axes[1].plot(val_mids, val_left, c='red', label='Left', linewidth=4)
     axes[1].plot(val_mids, val_right, c='blue', label='Right', linewidth=4)
@@ -63,7 +65,7 @@ def pairs_plot(train_left, train_right, train_mids, val_left, val_right, val_mid
     axes[1].set_xlabel('PV Statistic Value', fontsize=16)
     # axes[1].set_yticks([])
     # axes[1].set_xticks([])
-    axes[1].set_xlim(val_mids.min(), train_mids.max())
+    axes[1].set_xlim(plot_min, plot_max)
 
     if save_path is None:
         plt.show()
@@ -76,6 +78,8 @@ def diffs_plot(train_diffs, train_mids, val_diffs, val_mids, train_mean, train_s
 
     print("train: {:.3e}, {:.3e} | val: {:.3e}, {:.3e}".format(train_mean, train_sigma, val_mean, val_sigma))
 
+    plot_min, plot_max = min(val_mids.min(), train_mids.min()), max(val_mids.max(), train_mids.max())
+
     fig, axes = plt.subplots(ncols=2, figsize=(16, 6))
     axes[0].plot(train_mids, train_diffs, c='red', label='Left Fields', linewidth=4)
     axes[0].set_title('Train', fontsize=16)
@@ -85,7 +89,7 @@ def diffs_plot(train_diffs, train_mids, val_diffs, val_mids, train_mean, train_s
     axes[0].set_yticks([])
     # axes[0].set_xticks([])
     axes[0].legend(fontsize=16, loc='upper right')
-    axes[0].set_xlim(train_mids.min(), train_mids.max())
+    axes[0].set_xlim(plot_min, plot_max)
 
     axes[1].plot(val_mids, val_diffs, c='red', label='Left', linewidth=4)
     axes[1].set_title('Validation', fontsize=16)
@@ -93,7 +97,7 @@ def diffs_plot(train_diffs, train_mids, val_diffs, val_mids, train_mean, train_s
     axes[1].axvline(x=val_mean, c='black', linestyle=':', linewidth=2)
     axes[1].set_yticks([])
     # axes[1].set_xticks([])
-    axes[1].set_xlim(val_mids.min(), train_mids.max())
+    axes[1].set_xlim(plot_min, plot_max)
 
     if save_path is None:
         plt.show()
